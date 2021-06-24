@@ -18,7 +18,7 @@ let board = []; // array of rows, each row is array of cells  (board[y][x])
  */
 function makeBoard() {
   for(let y = 0; y < HEIGHT; y++){
-    board.push(Array.from({length: WIDTH}, (v, i) => null));
+    board.push(Array.from({length: WIDTH}, value => null));
   }
 }
 
@@ -68,12 +68,9 @@ function makeHtmlBoard() {
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 
 function findSpotForCol(x) {
-  let rowCount = 5;
-
+  let rowCount = HEIGHT-1;
   while (rowCount >= 0) {
-    //previous method of checking if cell was filled
-    // if(!(document.getElementById(`${rowCount}-${x}`).firstChild.classList.contains("piece"))) {
-    if(board[rowCount][x]===null){
+      if(board[rowCount][x]===null){
       return rowCount;
     }
     else {
@@ -100,7 +97,7 @@ function placeInTable(y, x) {
 
 function endGame(msg) {
   // pop up alert message, setting a timeout so it places the piece on the HTML board before sending the alert
-  setTimeout(function(){alert(msg);},100);
+  setTimeout(function(){alert(msg)},100);
 }
 
 /** handleClick: handle click of column top to play piece */
@@ -127,28 +124,14 @@ function handleClick(evt) {
   }
   
   // check if all cells in board are filled; if so call, call endGame
-  let isBoardFilled = false;
-  for (let row=0; row<board.length;row++){
-    let isRowFilled = false;
-    if(board[row].every(cell => cell !== null)) {
-      isRowFilled = true;
-    } else {
-      break;
-    }
-    if(row === HEIGHT-1 && isRowFilled) {
-      isBoardFilled = true;
-    }
-  }
-  if(isBoardFilled) {
-    return endGame("the game is a tie");
+  
+  if(board[0].every(cell => cell !== null)){
+      return endGame("the game is a tie");
   }
 
   // switch currPlayer 1 <-> 2
-  if(currPlayer === 1){
-    currPlayer = 2;
-  }else{
-    currPlayer = 1;
-}
+  
+  currPlayer = (currplayer===1 ? 2 : 1);
 }
 
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -161,15 +144,17 @@ function checkForWin() {
    */
   function _win(cells) {
     //check if every element of the array if they are the same and are in bound
-    // 
-    if(cells.some( ([y,x]) => {
-        return (y < 0 || y >= HEIGHT) || (x < 0 || x >= WIDTH)
-        })){
+    // pass the some if condition to a variable to make it easier to read.
+    let inBounds = cells.some( ([y,x]) => {
+      return (y < 0 || y >= HEIGHT) || (x < 0 || x >= WIDTH)});
+    
+    let isFourConnected = cells.every( ([y,x]) => {
+      return board[y][x] === currPlayer});
+    
+    if(inBounds){
         return false;
     }
-    if(cells.every( ([y,x]) => {
-        return board[y][x] === currPlayer
-        })){
+    if(isFourConnected){
         return true;
     }
     return false;
