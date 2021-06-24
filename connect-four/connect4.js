@@ -7,6 +7,15 @@
  * board fills (tie)
  */
 
+const FILLED_BOARD = [
+  [ 2, 2, 2, 1, 2, 2, 2 ],
+  [ 1, 1, 1, 2, 1, 1, 1 ],
+  [ 2, 2, 2, 1, 2, 2, 2 ],
+  [ 1, 1, 1, 2, 1, 1, 1 ],
+  [ 2, 2, 2, 1, 2, 2, 2 ],
+  [ 1, 1, 1, 2, 1, 1, 1 ],
+];
+
 const WIDTH = 7;
 const HEIGHT = 6;
 
@@ -26,7 +35,7 @@ function makeBoard() {
 
 function makeHtmlBoard() {
   
-  // TODO: get "htmlBoard" variable from the item in HTML w/ID of "board"
+  // get "htmlBoard" variable from the item in HTML w/ID of "board"
   let htmlBoard = document.getElementById("board");
   /**
    * make table row element and makes clickable
@@ -49,18 +58,18 @@ function makeHtmlBoard() {
   // uses HEIGHT to create table rows
   // uses WIDTH to create table cells for each row
   for (let y = 0; y < HEIGHT; y++) {
-    // TODO: Create a table row element and assign to a "row" variable
+    //Create a table row element and assign to a "row" variable
     let tableRow = document.createElement("tr");
     for (let x = 0; x < WIDTH; x++) {
-      // TODO: Create a table cell element and assign to a "cell" variable
+      // Create a table cell element and assign to a "cell" variable
       let cell = document.createElement("td");
-      // TODO: add an id, y-x, to the above table cell element
+      // add an id, y-x, to the above table cell element
       // you'll use this later, so make sure you use y-x
       cell.setAttribute("id", `${y}-${x}`);
-      // TODO: append the table cell to the table row
+      // append the table cell to the table row
       tableRow.append(cell);
     }
-    // TODO: append the row to the html board
+    // append the row to the html board
     htmlBoard.append(tableRow);
   }
 }
@@ -68,11 +77,12 @@ function makeHtmlBoard() {
 /** findSpotForCol: given column x, return top empty y (null if filled) */
 
 function findSpotForCol(x) {
-  // TODO: write the real version of this, rather than always returning 0
   let rowCount = 5;
 
   while (rowCount >= 0) {
-    if(!(document.getElementById(`${rowCount}-${x}`).firstChild.classList.contains("piece"))) {
+    //previous method of checking if cell was filled
+    // if(!(document.getElementById(`${rowCount}-${x}`).firstChild.classList.contains("piece"))) {
+    if(board[rowCount][x]===null){
       return rowCount;
     }
     else {
@@ -84,7 +94,6 @@ function findSpotForCol(x) {
 }
 
 /** placeInTable: update DOM to place piece into HTML table of board 
-*   and then changes player
 */
 
 function placeInTable(y, x) {
@@ -93,13 +102,14 @@ function placeInTable(y, x) {
   piece.setAttribute("class", "p" + currPlayer);
   piece.classList.add("piece");
   document.getElementById(`${y}-${x}`).append(piece);
+  
 }
 
 /** endGame: announce game end */
 
 function endGame(msg) {
-  // pop up alert message
-  alert(msg);
+  // pop up alert message, setting a timeout so it places the piece on the HTML board before sending the alert
+  setTimeout(function(){alert(msg);},100);
 }
 
 /** handleClick: handle click of column top to play piece */
@@ -113,38 +123,36 @@ function handleClick(evt) {
   if (y === null) {
     return;
   }
-
+  
   // place piece in board and add to HTML table
-  // TODO: add line to update in-memory board
+  // add line to update in-memory board
   placeInTable(y, x);
   board[y][x] = currPlayer;
-
+  
+  
   // check for win
   if (checkForWin()) {
     return endGame(`Player ${currPlayer} won!`);
   }
-
-  // check for tie
-  // TODO: check if all cells in board are filled; if so call, call endGame
+  
+  // check if all cells in board are filled; if so call, call endGame
   let isBoardFilled = false;
-  for (let row in board) {
+  for (let row=0; row<board.length;row++){
     let isRowFilled = false;
-    if(board.every(cell => cell !== null)) {
+    if(board[row].every(cell => cell !== null)) {
       isRowFilled = true;
     } else {
       break;
     }
-    if(row === 0 && isRowFilled) {
+    if(row === HEIGHT-1 && isRowFilled) {
       isBoardFilled = true;
     }
   }
   if(isBoardFilled) {
-    endGame();
+    return endGame("the game is a tie");
   }
 
-
-  // switch players
-  // TODO: switch currPlayer 1 <-> 2
+  // switch currPlayer 1 <-> 2
   if(currPlayer === 1){
     currPlayer = 2;
   }else{
@@ -155,16 +163,25 @@ function handleClick(evt) {
 /** checkForWin: check board cell-by-cell for "does a win start here?" */
 
 function checkForWin() {
-
   /** _win:
    * takes input array of 4 cell coordinates [ [y, x], [y, x], [y, x], [y, x] ]
    * returns true if all are legal coordinates for a cell & all cells match
    * currPlayer
    */
   function _win(cells) {
-
-    // TODO: Check four cells to see if they're all legal & all color of current
-    // player
+    //check if every element of the array if they are the same and are in bound
+    // 
+    if(cells.some( ([y,x]) => {
+        return (y < 0 || y >= HEIGHT) || (x < 0 || x >= WIDTH)
+        })){
+        return false;
+    }
+    if(cells.every( ([y,x]) => {
+        return board[y][x] === currPlayer
+        })){
+        return true;
+    }
+    return false;
 
   }
 
@@ -173,18 +190,20 @@ function checkForWin() {
   // ways to win: horizontal, vertical, diagonalDR, diagonalDL
   for (let y = 0; y < HEIGHT; y++) {
     for (let x = 0; x < WIDTH; x++) {
-      // TODO: assign values to the below variables for each of the ways to win
+      // assign values to the below variables for each of the ways to win
       // horizontal has been assigned for you
       // each should be an array of 4 cell coordinates:
       // [ [y, x], [y, x], [y, x], [y, x] ]
 
       let horiz = [[y, x], [y, x + 1], [y, x + 2], [y, x + 3]];
-      let vert;
-      let diagDL;
-      let diagDR;
+      let vert = [[y, x], [y + 1, x], [y + 2, x], [y + 3, x]];
+      let diagDL = [[y, x + 3],[y + 1, x + 2],[y + 2, x + 1],[y + 3, x]];
+      let diagDR = [[y, x],[y + 1, x + 1],[y + 2, x + 2],[y + 3, x + 3]];
 
       // find winner (only checking each win-possibility as needed)
       if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
+        //remove event listener so user cannot keep clicking after game is over. 
+        document.getElementById("column-top").removeEventListener("click", handleClick);
         return true;
       }
     }
