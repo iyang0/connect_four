@@ -18,7 +18,7 @@ let board = []; // array of rows, each row is array of cells  (board[y][x])
  */
 function makeBoard() {
   for(let y = 0; y < HEIGHT; y++){
-    board.push(Array.from({length : WIDTH}));
+    board.push(Array.from({length : WIDTH}, (v,i)=>null));
   }
 }
 
@@ -72,11 +72,16 @@ function findSpotForCol(x) {
   return 0;
 }
 
-/** placeInTable: update DOM to place piece into HTML table of board */
+/** placeInTable: update DOM to place piece into HTML table of board 
+*   and then changes player
+*/
 
 function placeInTable(y, x) {
-  // TODO: make a div and insert into correct table cell
   
+  let piece = document.createElement("div");
+  piece.setAttribute("class", "p"+currPlayer);
+  piece.classList.add("piece");
+  document.getElementById(`${y}-${x}`).append(piece);
   if(currPlayer===1){
       currPlayer=2;
   }else{
