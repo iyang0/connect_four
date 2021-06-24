@@ -16,11 +16,10 @@ let board = []; // array of rows, each row is array of cells  (board[y][x])
 /** makeBoard: create in-JS board structure:
  *    board = array of rows, each row is array of cells  (board[y][x])
  */
-function makeBoard(board) {
-  for(let i=0;i<HEIGHT.length;i++){
-      board.push(Array.from({length : WIDTH}));
+function makeBoard() {
+  for(let y = 0; y < HEIGHT; y++){
+    board.push(Array.from({length : WIDTH}));
   }
-  
 }
 
 /** makeHtmlBoard: make HTML table and row of column tops. */
@@ -77,6 +76,12 @@ function findSpotForCol(x) {
 
 function placeInTable(y, x) {
   // TODO: make a div and insert into correct table cell
+  
+  if(currPlayer===1){
+      currPlayer=2;
+  }else{
+      currPlayer=1;
+  }
 }
 
 /** endGame: announce game end */
